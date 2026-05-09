@@ -6,10 +6,8 @@
 <title>차량 연락하기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --green: #1a9e6e;
     --green-dark: #0d7a53;
@@ -22,7 +20,6 @@
     --radius: 16px;
     --radius-sm: 10px;
   }
-
   html, body {
     height: 100%;
     font-family: 'Noto Sans KR', sans-serif;
@@ -31,9 +28,9 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* ── SCREENS ── */
+  /* ── 메인 화면 ── */
   .screen {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -41,14 +38,11 @@
     padding: 2rem 1.5rem;
     animation: fadeIn 0.3s ease;
   }
-  .screen.active { display: flex; }
-
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── MAIN SCREEN ── */
   .car-wrap {
     width: 88px; height: 88px;
     background: var(--green-light);
@@ -59,59 +53,39 @@
   .car-wrap svg { width: 46px; height: 46px; color: var(--green); }
 
   .main-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 0.35rem;
-    line-height: 1.4;
+    font-size: 1.35rem; font-weight: 700;
+    text-align: center; margin-bottom: 0.35rem; line-height: 1.4;
   }
   .main-sub {
-    font-size: 0.875rem;
-    color: var(--text-sub);
-    text-align: center;
-    margin-bottom: 2.5rem;
+    font-size: 0.875rem; color: var(--text-sub);
+    text-align: center; margin-bottom: 2.5rem;
   }
 
   .btn-group {
-    width: 100%;
-    max-width: 340px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
+    width: 100%; max-width: 340px;
+    display: flex; flex-direction: column; gap: 0.85rem;
   }
 
   .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
     padding: 1.1rem 1.5rem;
-    border-radius: var(--radius);
-    border: none;
-    font-family: inherit;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
+    border-radius: var(--radius); border: none;
+    font-family: inherit; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; text-decoration: none;
     transition: transform 0.12s, box-shadow 0.12s;
     -webkit-user-select: none;
   }
   .btn:active { transform: scale(0.97); }
-
   .btn-call {
-    background: var(--green);
-    color: #fff;
+    background: var(--green); color: #fff;
     box-shadow: 0 4px 18px rgba(26,158,110,0.28);
   }
-  .btn-call:hover { background: var(--green-dark); box-shadow: 0 6px 22px rgba(26,158,110,0.35); }
-
+  .btn-call:hover { background: var(--green-dark); }
   .btn-sms {
-    background: var(--white);
-    color: var(--text);
+    background: var(--white); color: var(--text);
     border: 1.5px solid var(--border);
   }
   .btn-sms:hover { border-color: #c0c7d0; background: #f5f6f8; }
-
   .btn svg { width: 22px; height: 22px; flex-shrink: 0; }
 
   .divider {
@@ -124,140 +98,37 @@
 
   .badge {
     margin-top: 2rem;
-    background: var(--green-light);
-    color: var(--green-dark);
-    font-size: 0.78rem;
-    font-weight: 500;
-    padding: 0.45rem 1rem;
-    border-radius: 999px;
+    background: var(--green-light); color: var(--green-dark);
+    font-size: 0.78rem; font-weight: 500;
+    padding: 0.45rem 1rem; border-radius: 999px;
     display: flex; align-items: center; gap: 6px;
   }
   .badge svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-  .setup-link {
-    margin-top: 2.5rem;
-    background: none; border: none;
-    font-family: inherit; font-size: 0.8rem;
-    color: var(--text-sub);
-    cursor: pointer; text-decoration: underline;
-    text-underline-offset: 3px;
+  /* ── 오류 화면 ── */
+  .error-screen {
+    display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100dvh; padding: 2rem 1.5rem; text-align: center;
   }
+  .error-screen.show { display: flex; }
+  .screen.hide { display: none; }
 
-  /* ── SETUP SCREEN ── */
-  .setup-card {
-    width: 100%; max-width: 380px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem 1.5rem;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  .error-icon {
+    width: 72px; height: 72px;
+    background: #fef2f2; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.2rem;
   }
-  .setup-card h2 {
-    font-size: 1.15rem; font-weight: 700;
-    margin-bottom: 0.3rem;
-  }
-  .setup-card p {
-    font-size: 0.85rem; color: var(--text-sub);
-    line-height: 1.7; margin-bottom: 1.5rem;
-  }
-
-  .field { margin-bottom: 1.1rem; }
-  .field label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-sub); margin-bottom: 6px; }
-  .field input {
-    width: 100%; padding: 0.75rem 0.9rem;
-    font-family: inherit; font-size: 1rem;
-    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-    background: var(--bg); color: var(--text);
-    transition: border-color 0.15s, box-shadow 0.15s;
-    outline: none;
-  }
-  .field input:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 0 3px rgba(26,158,110,0.15);
-  }
-
-  .save-btn {
-    width: 100%; padding: 0.9rem;
-    background: var(--green); color: #fff;
-    border: none; border-radius: var(--radius-sm);
-    font-family: inherit; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: background 0.15s;
-    margin-top: 0.4rem;
-  }
-  .save-btn:hover { background: var(--green-dark); }
-  .save-btn:active { transform: scale(0.98); }
-
-  .tip-box {
-    margin-top: 1.25rem;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
-    border-radius: var(--radius-sm);
-    padding: 0.9rem 1rem;
-    font-size: 0.82rem;
-    color: #92400e;
-    line-height: 1.7;
-  }
-  .tip-box strong { color: #78350f; }
-
-  /* ── QR RESULT ── */
-  .qr-result {
-    width: 100%; max-width: 380px;
-    text-align: center;
-  }
-  .qr-result h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .qr-result p { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 1.25rem; line-height: 1.6; }
-
-  #qr-box {
-    display: inline-flex;
-    padding: 16px; background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  }
-  #qr-box canvas, #qr-box img { display: block; border-radius: 4px; }
-
-  .qr-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .qr-btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
-    background: var(--white);
-    font-family: inherit; font-size: 0.88rem; font-weight: 500;
-    cursor: pointer; transition: background 0.12s;
-    display: flex; align-items: center; gap: 6px;
-    color: var(--text);
-  }
-  .qr-btn:hover { background: var(--bg); }
-  .qr-btn.primary { background: var(--green); color: #fff; border-color: var(--green); }
-  .qr-btn.primary:hover { background: var(--green-dark); }
-  .qr-btn svg { width: 16px; height: 16px; }
-
-  .back-link {
-    margin-top: 1.5rem;
-    background: none; border: none;
-    font-family: inherit; font-size: 0.85rem;
-    color: var(--text-sub); cursor: pointer;
-    text-decoration: underline; text-underline-offset: 3px;
-  }
-
-  .notice-print {
-    font-size: 0.78rem; color: var(--text-sub);
-    margin-top: 1rem; line-height: 1.7; text-align: center;
-    max-width: 280px; margin-left: auto; margin-right: auto;
-  }
-
-  @media print {
-    .setup-link, .back-link, .qr-actions, .notice-print { display: none !important; }
-    body { background: #fff; }
-    .qr-result { max-width: 100%; }
-  }
+  .error-icon svg { width: 36px; height: 36px; color: #ef4444; }
+  .error-screen h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .error-screen p { font-size: 0.875rem; color: var(--text-sub); line-height: 1.7; }
 </style>
 </head>
 <body>
 
-<!-- ── MAIN CONTACT SCREEN ── -->
-<main id="screen-main" class="screen active" role="main">
+<!-- 메인 연락 화면 -->
+<main id="screen-main" class="screen" role="main">
   <div class="car-wrap" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M5 17H3a1 1 0 0 1-1-1v-4l2.45-4.9A2 2 0 0 1 6.24 6h11.52a2 2 0 0 1 1.79 1.1L22 12v4a1 1 0 0 1-1 1h-2"/>
@@ -270,7 +141,7 @@
   <p class="main-sub">아래 버튼을 눌러 바로 연락하세요</p>
 
   <div class="btn-group">
-    <a id="btn-call" href="#" class="btn btn-call" onclick="doCall(event)" aria-label="전화 걸기">
+    <a id="btn-call" href="#" class="btn btn-call" onclick="doCall(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.45 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6.29 6.29l1.12-.93a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
       </svg>
@@ -279,7 +150,7 @@
 
     <div class="divider">또는</div>
 
-    <a id="btn-sms" href="#" class="btn btn-sms" onclick="doSms(event)" aria-label="문자 보내기">
+    <a id="btn-sms" href="#" class="btn btn-sms" onclick="doSms(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
@@ -287,194 +158,57 @@
     </a>
   </div>
 
-  <div class="badge" aria-label="안심번호로 연결됩니다">
+  <div class="badge">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
     </svg>
     안심번호로 연결 · 실제 번호 비공개
   </div>
-
-  <button class="setup-link" onclick="showSetup()">⚙ 번호 설정 (차주 전용)</button>
 </main>
 
-
-<!-- ── SETUP SCREEN ── -->
-<section id="screen-setup" class="screen" aria-label="번호 설정">
-  <div class="setup-card">
-    <h2>번호 설정</h2>
-    <p>연결할 안심번호와 표시 이름을 입력하세요.<br>저장 후 QR 코드를 인쇄해 차량에 부착하시면 됩니다.</p>
-
-    <div class="field">
-      <label for="input-name">표시 이름 <span style="font-weight:400;color:#9ca3af">(선택)</span></label>
-      <input id="input-name" type="text" placeholder="예: 홍길동 차량" maxlength="20" autocomplete="off">
-    </div>
-    <div class="field">
-      <label for="input-phone">안심번호</label>
-      <input id="input-phone" type="tel" placeholder="050-XXXX-XXXX" maxlength="14"
-             oninput="formatPhone(this)" inputmode="tel">
-    </div>
-
-    <button class="save-btn" onclick="saveAndGenerate()">저장 후 QR 코드 생성</button>
-
-    <div class="tip-box">
-      <strong>💡 안심번호 발급 안내</strong><br>
-      KT · SKT · LGU+ 고객센터 또는 앱에서 신청 가능합니다.<br>
-      월 약 1,100원이며, 실제 번호가 상대방에게 노출되지 않습니다.
-    </div>
+<!-- 번호 미등록 오류 화면 -->
+<div id="screen-error" class="error-screen" role="alert">
+  <div class="error-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
   </div>
-  <button class="back-link" onclick="showMain()">← 돌아가기</button>
-</section>
-
-
-<!-- ── QR RESULT SCREEN ── -->
-<section id="screen-qr" class="screen" aria-label="QR 코드 결과">
-  <div class="qr-result">
-    <h2>QR 코드가 생성되었습니다</h2>
-    <p>아래 QR 코드를 인쇄해서 차량 앞 유리에 부착하세요.<br>스캔하면 전화 / 문자 선택 화면이 바로 나타납니다.</p>
-
-    <div id="qr-box" aria-label="생성된 QR 코드"></div>
-
-    <div class="qr-actions">
-      <button class="qr-btn primary" onclick="printPage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-          <rect x="6" y="14" width="12" height="8"/>
-        </svg>
-        인쇄하기
-      </button>
-      <button class="qr-btn" onclick="downloadQR()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        이미지 저장
-      </button>
-    </div>
-    <p class="notice-print">QR 코드를 스캔하면 이 페이지로 바로 연결됩니다.<br>파일을 웹에 올린 뒤 그 주소로 QR을 생성하세요.</p>
-  </div>
-  <button class="back-link" onclick="showSetup()">← 번호 다시 설정</button>
-</section>
-
+  <h2>연락처가 등록되지 않았습니다</h2>
+  <p>QR 코드가 올바르게 설정되지 않았습니다.<br>차주에게 QR 코드 재설정을 요청해주세요.</p>
+</div>
 
 <script>
-  // ── State ──
-  const STORAGE_KEY_PHONE = 'carqr_phone';
-  const STORAGE_KEY_NAME  = 'carqr_name';
   let currentPhone = '';
   let currentName  = '';
 
-  // ── Init ──
   (function init() {
-    // URL 파라미터 우선
     const params = new URLSearchParams(location.search);
-    const urlPhone = params.get('p');
-    const urlName  = params.get('n');
+    const p = params.get('p');
+    const n = params.get('n');
 
-    if (urlPhone) {
-      currentPhone = decodeURIComponent(urlPhone);
-      currentName  = urlName ? decodeURIComponent(urlName) : '';
-    } else {
-      currentPhone = localStorage.getItem(STORAGE_KEY_PHONE) || '';
-      currentName  = localStorage.getItem(STORAGE_KEY_NAME)  || '';
+    if (!p) {
+      // 번호 파라미터 없으면 오류 화면
+      document.getElementById('screen-main').classList.add('hide');
+      document.getElementById('screen-error').classList.add('show');
+      return;
     }
 
-    applyContactToUI();
-    showMain();
-  })();
+    currentPhone = p;
+    currentName  = n ? decodeURIComponent(n) : '';
 
-  function applyContactToUI() {
     if (currentName) {
       document.getElementById('main-title').innerHTML = currentName + '<br>차주에게 연락하기';
     }
-  }
+  })();
 
-  // ── Screen nav ──
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo(0, 0);
-  }
-  function showMain()  { showScreen('screen-main'); }
-  function showSetup() {
-    document.getElementById('input-phone').value = currentPhone;
-    document.getElementById('input-name').value  = currentName;
-    showScreen('screen-setup');
-  }
-
-  // ── Phone format ──
-  function formatPhone(el) {
-    let v = el.value.replace(/\D/g, '');
-    if (v.startsWith('050')) {
-      // 050X-XXXX-XXXX (안심번호)
-      if (v.length <= 4)       el.value = v;
-      else if (v.length <= 8)  el.value = v.slice(0,4) + '-' + v.slice(4);
-      else                     el.value = v.slice(0,4) + '-' + v.slice(4,8) + '-' + v.slice(8,12);
-    } else {
-      // 010-XXXX-XXXX
-      if (v.length <= 3)       el.value = v;
-      else if (v.length <= 7)  el.value = v.slice(0,3) + '-' + v.slice(3);
-      else                     el.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
-    }
-  }
-
-  // ── Save & QR ──
-  function saveAndGenerate() {
-    const phone = document.getElementById('input-phone').value.trim();
-    const name  = document.getElementById('input-name').value.trim();
-    if (!phone) { alert('안심번호를 입력해주세요.'); return; }
-
-    currentPhone = phone;
-    currentName  = name;
-    localStorage.setItem(STORAGE_KEY_PHONE, phone);
-    localStorage.setItem(STORAGE_KEY_NAME,  name);
-    applyContactToUI();
-    generateQR(phone, name);
-    showScreen('screen-qr');
-  }
-
-  function generateQR(phone, name) {
-    const box = document.getElementById('qr-box');
-    box.innerHTML = '';
-
-    // QR URL: 이 HTML 파일 자체 주소 + 파라미터
-    const base = location.href.split('?')[0];
-    const url  = base + '?p=' + encodeURIComponent(phone.replace(/-/g,''))
-                      + (name ? '&n=' + encodeURIComponent(name) : '');
-
-    new QRCode(box, {
-      text: url,
-      width: 220,
-      height: 220,
-      colorDark: '#1a1a1a',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-  }
-
-  // ── Actions ──
   function doCall(e) {
     e.preventDefault();
-    if (!currentPhone) { alert('번호가 설정되지 않았습니다.'); return; }
-    location.href = 'tel:' + currentPhone.replace(/-/g,'');
+    location.href = 'tel:' + currentPhone;
   }
 
   function doSms(e) {
     e.preventDefault();
-    if (!currentPhone) { alert('번호가 설정되지 않았습니다.'); return; }
-    location.href = 'sms:' + currentPhone.replace(/-/g,'');
-  }
-
-  function printPage() {
-    window.print();
-  }
-
-  function downloadQR() {
-    const box = document.getElementById('qr-box');
-    const canvas = box.querySelector('canvas');
-    if (!canvas) { alert('QR 코드를 먼저 생성해주세요.'); return; }
-    const link = document.createElement('a');
-    link.download = 'car-qr.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    location.href = 'sms:' + currentPhone;
   }
 </script>
 </body>
