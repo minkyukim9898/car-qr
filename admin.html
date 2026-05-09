@@ -174,10 +174,7 @@
       <label for="input-phone">안심번호</label>
       <input id="input-phone" type="tel" placeholder="050-XXXX-XXXX" maxlength="14" oninput="formatPhone(this)" inputmode="tel">
     </div>
-    <div class="field">
-      <label for="input-page">연락 페이지 주소 <span style="font-weight:400;color:#9ca3af">(index.html 주소)</span></label>
-      <input id="input-page" type="url" placeholder="https://아이디.github.io/car-qr/" autocomplete="off">
-    </div>
+    <input id="input-page" type="hidden" value="https://minkyukim9898.github.io/car-qr/">
     <button class="btn-green" onclick="generate()">QR 코드 생성</button>
 
     <div class="tip" style="margin-top:1rem">
