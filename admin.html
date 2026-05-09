@@ -5,274 +5,360 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>차량 QR 관리자</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --green: #1a9e6e;
-    --green-dark: #0d7a53;
-    --green-light: #e8f8f2;
-    --text: #1a1a1a;
-    --text-sub: #6b7280;
-    --border: #e5e7eb;
-    --bg: #f9fafb;
-    --white: #ffffff;
-    --radius: 16px;
-    --radius-sm: 10px;
+    --green: #1a9e6e; --green-dark: #0d7a53; --green-light: #e8f8f2;
+    --blue: #2563eb; --blue-light: #eff6ff;
+    --text: #1a1a1a; --text-sub: #6b7280;
+    --border: #e5e7eb; --bg: #f9fafb; --white: #ffffff;
+    --radius: 16px; --radius-sm: 10px;
   }
-  html, body {
-    min-height: 100%;
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
-  .wrap {
-    max-width: 440px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .logo {
-    width: 64px; height: 64px;
-    background: var(--green-light);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 1.2rem;
-  }
-  .logo svg { width: 34px; height: 34px; color: var(--green); }
-  h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
-  .sub { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 2rem; text-align: center; line-height: 1.6; }
+  html, body { min-height: 100%; font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); }
 
-  .card {
-    width: 100%;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    margin-bottom: 1.2rem;
-  }
+  /* 탭 */
+  .tab-bar { display: flex; background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  .tab-btn { flex: 1; padding: 1rem; font-family: inherit; font-size: 0.92rem; font-weight: 500; background: none; border: none; cursor: pointer; color: var(--text-sub); border-bottom: 2.5px solid transparent; transition: color 0.15s, border-color 0.15s; }
+  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+  .tab-panel { display: none; padding: 1.5rem; max-width: 480px; margin: 0 auto; padding-bottom: 3rem; }
+  .tab-panel.active { display: block; }
+
+  /* 공통 카드 */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 1rem; }
   .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-  .card h2 svg { width: 18px; height: 18px; color: var(--green); }
+  .card h2 svg { width: 18px; height: 18px; }
 
+  /* 입력 */
   .field { margin-bottom: 1rem; }
-  .field:last-child { margin-bottom: 0; }
   .field label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-sub); margin-bottom: 6px; }
-  .field input {
+  .field input, .field select {
     width: 100%; padding: 0.72rem 0.9rem;
     font-family: inherit; font-size: 1rem;
     border: 1.5px solid var(--border); border-radius: var(--radius-sm);
     background: var(--bg); color: var(--text);
-    transition: border-color 0.15s, box-shadow 0.15s;
-    outline: none;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .field input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,158,110,0.15); }
+  .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,158,110,0.15); }
 
-  .btn-green {
-    width: 100%; padding: 0.85rem;
-    background: var(--green); color: #fff;
-    border: none; border-radius: var(--radius-sm);
-    font-family: inherit; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: background 0.15s;
-    margin-top: 0.2rem;
-  }
+  /* 버튼 */
+  .btn-green { width: 100%; padding: 0.85rem; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
   .btn-green:hover { background: var(--green-dark); }
   .btn-green:active { transform: scale(0.98); }
   .btn-green:disabled { background: #9ca3af; cursor: not-allowed; }
-
-  .tip {
-    background: #fffbeb; border: 1px solid #fde68a;
-    border-radius: var(--radius-sm);
-    padding: 0.85rem 1rem;
-    font-size: 0.82rem; color: #92400e; line-height: 1.7;
-  }
-  .tip strong { color: #78350f; }
-
-  /* QR 결과 */
-  #qr-section { display: none; width: 100%; }
-  .qr-card {
-    width: 100%;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    text-align: center;
-  }
-  .qr-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
-  .qr-card p { font-size: 0.83rem; color: var(--text-sub); margin-bottom: 1.2rem; line-height: 1.6; }
-  #qr-box {
-    display: inline-flex; padding: 14px;
-    background: #fff; border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    margin-bottom: 1.2rem;
-  }
-  .qr-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .btn-outline {
-    padding: 0.6rem 1.1rem;
-    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-    background: var(--white); color: var(--text);
-    font-family: inherit; font-size: 0.88rem; font-weight: 500;
-    cursor: pointer; display: flex; align-items: center; gap: 6px;
-    transition: background 0.12s;
-  }
+  .btn-outline { padding: 0.6rem 1.1rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--white); color: var(--text); font-family: inherit; font-size: 0.88rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.12s; }
   .btn-outline:hover { background: var(--bg); }
   .btn-outline.primary { background: var(--green); color: #fff; border-color: var(--green); }
   .btn-outline.primary:hover { background: var(--green-dark); }
   .btn-outline svg { width: 15px; height: 15px; }
 
-  .url-box {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 0.7rem 1rem;
-    font-size: 0.8rem; color: var(--text-sub);
-    word-break: break-all; text-align: left; margin-top: 1rem;
-  }
-  .url-box span { display: block; font-size: 0.75rem; color: #9ca3af; margin-bottom: 4px; }
+  /* QR 목록 */
+  .qr-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .qr-item { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .qr-item-left { display: flex; flex-direction: column; gap: 4px; }
+  .qr-item-id { font-size: 0.95rem; font-weight: 700; font-family: monospace; }
+  .qr-item-status { font-size: 0.78rem; display: flex; align-items: center; gap: 5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dot.green { background: var(--green); }
+  .dot.yellow { background: #f59e0b; }
+  .qr-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
-  .saved-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--green-light); color: var(--green-dark);
-    font-size: 0.8rem; font-weight: 500;
-    padding: 0.4rem 0.9rem; border-radius: 999px; margin-bottom: 1rem;
-  }
-  .saved-badge svg { width: 14px; height: 14px; }
+  /* QR 팝업 */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; padding: 1.5rem; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 320px; text-align: center; }
+  .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .modal p { font-size: 0.82rem; color: var(--text-sub); margin-bottom: 1rem; line-height: 1.6; }
+  #modal-qr-box { display: inline-flex; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 1rem; }
+  .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .modal-close { margin-top: 1rem; background: none; border: none; font-family: inherit; font-size: 0.85rem; color: var(--text-sub); cursor: pointer; text-decoration: underline; }
 
-  @media print {
-    .wrap > *:not(#qr-section) { display: none !important; }
-    #qr-section { display: block !important; }
-    .qr-actions, .url-box { display: none !important; }
-  }
+  /* 번호 등록 탭 */
+  .reg-code-display { background: var(--blue-light); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 0.9rem 1rem; font-size: 1.5rem; font-weight: 700; font-family: monospace; text-align: center; letter-spacing: 0.15em; color: var(--blue); margin-bottom: 1rem; }
+  .tip { background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.82rem; color: #92400e; line-height: 1.7; margin-top: 0.75rem; }
+  .tip strong { color: #78350f; }
+
+  /* 토스트 */
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 0.7rem 1.4rem; border-radius: 999px; font-size: 0.88rem; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; white-space: nowrap; z-index: 200; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-sub); font-size: 0.9rem; }
+  .empty-state svg { width: 40px; height: 40px; margin-bottom: 0.8rem; opacity: 0.3; }
+
+  .badge-count { background: var(--green-light); color: var(--green-dark); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="logo" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/>
-      <path d="M14 14h2v2h-2zm3 0h2v2h-2zm-3 3h2v2h-2zm3 3h2v2h-2zm0-6h2v2h-2z"/>
-    </svg>
-  </div>
-  <h1>차량 QR 관리</h1>
-  <p class="sub">안심번호와 이름을 등록하면<br>차량에 부착할 QR 코드가 생성됩니다.</p>
 
-  <!-- 설정 카드 -->
-  <div class="card" id="setup-card">
+<!-- 탭 바 -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('tab-generate')">① QR 생성</button>
+  <button class="tab-btn" onclick="switchTab('tab-list')">② QR 목록 <span class="badge-count" id="badge-count">0</span></button>
+  <button class="tab-btn" onclick="switchTab('tab-register')">③ 번호 등록</button>
+</div>
+
+<!-- ① QR 생성 탭 -->
+<div id="tab-generate" class="tab-panel active">
+  <div class="card">
     <h2>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-      번호 등록
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green)"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h2v2h-2zm3 0h2v2h-2zm-3 3h2v2h-2zm3 0h2v2h-2zm0-6h2v2h-2z"/></svg>
+      QR 코드 일괄 생성
     </h2>
     <div class="field">
-      <label for="input-name">표시 이름 <span style="font-weight:400;color:#9ca3af">(선택)</span></label>
-      <input id="input-name" type="text" placeholder="예: 홍길동 차량" maxlength="20" autocomplete="off">
+      <label>생성 개수</label>
+      <select id="gen-count">
+        <option value="1">1개</option>
+        <option value="5">5개</option>
+        <option value="10" selected>10개</option>
+        <option value="20">20개</option>
+        <option value="50">50개</option>
+      </select>
+    </div>
+    <button class="btn-green" onclick="generateQRs()">QR 생성하기</button>
+    <div class="tip" style="margin-top:1rem">
+      <strong>📌 사용 방법</strong><br>
+      ① 여기서 QR을 원하는 수만큼 생성합니다.<br>
+      ② QR 목록에서 각 QR을 인쇄해 판매합니다.<br>
+      ③ 구매자가 <strong>번호 등록</strong> 탭에서 코드 입력 후 번호를 등록합니다.<br>
+      ④ 등록 완료 후 수정이 불가합니다.
+    </div>
+  </div>
+</div>
+
+<!-- ② QR 목록 탭 -->
+<div id="tab-list" class="tab-panel">
+  <div id="qr-list-wrap" class="qr-list">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <p>생성된 QR이 없습니다.<br>① QR 생성 탭에서 먼저 생성해주세요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 번호 등록 탭 (구매자용) -->
+<div id="tab-register" class="tab-panel">
+  <div class="card">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.45 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6.29 6.29l1.12-.93a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      번호 등록
+    </h2>
+    <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:1rem;line-height:1.6">패키지에 동봉된 <strong>등록 코드</strong>를 입력하고 안심번호를 등록하세요.<br>등록 후에는 수정이 불가합니다.</p>
+    <div class="field">
+      <label>등록 코드 (QR 패키지에 동봉)</label>
+      <input id="reg-code" type="text" placeholder="예: ABC-1234" maxlength="10" autocomplete="off" oninput="this.value=this.value.toUpperCase()" style="font-family:monospace;font-size:1.1rem;letter-spacing:0.1em;text-align:center">
     </div>
     <div class="field">
-      <label for="input-phone">안심번호</label>
-      <input id="input-phone" type="tel" placeholder="050-XXXX-XXXX" maxlength="14" oninput="formatPhone(this)" inputmode="tel">
+      <label>표시 이름 <span style="font-weight:400;color:#9ca3af">(선택)</span></label>
+      <input id="reg-name" type="text" placeholder="예: 홍길동 차량" maxlength="20" autocomplete="off">
     </div>
-    <input id="input-page" type="hidden" value="https://minkyukim9898.github.io/car-qr/">
-    <button class="btn-green" onclick="generate()">QR 코드 생성</button>
-
+    <div class="field">
+      <label>안심번호</label>
+      <input id="reg-phone" type="tel" placeholder="050-XXXX-XXXX" maxlength="14" oninput="formatPhone(this)" inputmode="tel">
+    </div>
+    <button class="btn-green" onclick="registerNumber()">번호 등록하기</button>
     <div class="tip" style="margin-top:1rem">
       <strong>💡 안심번호란?</strong><br>
       KT · SKT · LGU+ 고객센터에서 신청 가능 (월 약 1,100원)<br>
       실제 번호가 상대방에게 노출되지 않습니다.
     </div>
   </div>
-
-  <!-- QR 결과 -->
-  <div id="qr-section">
-    <div class="qr-card">
-      <div class="saved-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        QR 생성 완료
-      </div>
-      <h2>차량에 부착할 QR 코드</h2>
-      <p>아래 QR을 스캔하면 전화 / 문자 선택 화면이 나타납니다.<br>인쇄 후 차량 앞 유리에 부착하세요.</p>
-      <div id="qr-box"></div>
-      <div class="qr-actions">
-        <button class="btn-outline primary" onclick="window.print()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          인쇄
-        </button>
-        <button class="btn-outline" onclick="downloadQR()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          이미지 저장
-        </button>
-        <button class="btn-outline" onclick="resetForm()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.1L1 10"/></svg>
-          다시 설정
-        </button>
-      </div>
-      <div class="url-box" id="qr-url-box">
-        <span>QR 연결 주소</span>
-        <span id="qr-url-text"></span>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<script>
-  function formatPhone(el) {
-    let v = el.value.replace(/\D/g, '');
-    if (v.startsWith('050')) {
-      if (v.length <= 4)      el.value = v;
-      else if (v.length <= 8) el.value = v.slice(0,4) + '-' + v.slice(4);
-      else                    el.value = v.slice(0,4) + '-' + v.slice(4,8) + '-' + v.slice(8,12);
-    } else {
-      if (v.length <= 3)      el.value = v;
-      else if (v.length <= 7) el.value = v.slice(0,3) + '-' + v.slice(3);
-      else                    el.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+<!-- QR 팝업 -->
+<div class="modal-bg" id="qr-modal">
+  <div class="modal">
+    <h3 id="modal-title">QR 코드</h3>
+    <p id="modal-desc">이 QR을 차량에 부착하세요</p>
+    <div id="modal-qr-box"></div>
+    <div class="modal-actions">
+      <button class="btn-outline primary" onclick="printModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        인쇄
+      </button>
+      <button class="btn-outline" onclick="downloadModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        저장
+      </button>
+    </div>
+    <button class="modal-close" onclick="closeModal()">닫기</button>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const app = initializeApp({
+    apiKey: "AIzaSyDYi5RiRuGLFOBzj7CCFyvPg_oSpYGDorY",
+    authDomain: "car-qr-123df.firebaseapp.com",
+    projectId: "car-qr-123df",
+    storageBucket: "car-qr-123df.firebasestorage.app",
+    messagingSenderId: "727678289523",
+    appId: "1:727678289523:web:ce266b6671b528d5d58c06"
+  });
+  const db = getFirestore(app);
+
+  // 고유 ID 생성 (예: ABC-1234)
+  function makeId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const part1 = Array.from({length:3}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    const part2 = Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    return part1 + '-' + part2;
+  }
+
+  // QR 생성
+  window.generateQRs = async () => {
+    const count = parseInt(document.getElementById('gen-count').value);
+    const btn = document.querySelector('#tab-generate .btn-green');
+    btn.disabled = true; btn.textContent = '생성 중...';
+    try {
+      const BASE_URL = location.origin + location.pathname.replace('admin.html','') + 'index.html';
+      for (let i = 0; i < count; i++) {
+        let id = makeId();
+        // 중복 방지
+        let snap = await getDoc(doc(db, 'qrcodes', id));
+        while (snap.exists()) { id = makeId(); snap = await getDoc(doc(db, 'qrcodes', id)); }
+        await setDoc(doc(db, 'qrcodes', id), {
+          id, phone: '', name: '', locked: false,
+          contactUrl: BASE_URL + '?id=' + id,
+          createdAt: serverTimestamp()
+        });
+      }
+      showToast(`✅ ${count}개 생성 완료!`);
+      loadList();
+      switchTab('tab-list');
+    } catch(e) {
+      showToast('❌ 생성 실패: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = 'QR 생성하기';
+  };
+
+  // 목록 로드
+  async function loadList() {
+    const wrap = document.getElementById('qr-list-wrap');
+    wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-sub)">불러오는 중...</div>';
+    try {
+      const snap = await getDocs(collection(db, 'qrcodes'));
+      const docs = [];
+      snap.forEach(d => docs.push(d.data()));
+      docs.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      document.getElementById('badge-count').textContent = docs.length;
+      if (docs.length === 0) {
+        wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><p>생성된 QR이 없습니다.<br>① QR 생성 탭에서 먼저 생성해주세요.</p></div>';
+        return;
+      }
+      wrap.innerHTML = docs.map(d => `
+        <div class="qr-item">
+          <div class="qr-item-left">
+            <span class="qr-item-id">${d.id}</span>
+            <span class="qr-item-status">
+              <span class="dot ${d.phone ? 'green' : 'yellow'}"></span>
+              ${d.phone ? '등록완료 · ' + (d.name||'이름없음') : '미등록'}
+            </span>
+          </div>
+          <div class="qr-item-actions">
+            <button class="btn-outline primary" onclick="showQR('${d.id}','${d.contactUrl}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h2v2h-2zm3 0h2v2h-2zm-3 3h2v2h-2zm3 3h2v2h-2zm0-6h2v2h-2z"/></svg>
+              QR 보기
+            </button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) {
+      wrap.innerHTML = '<div class="empty-state"><p>불러오기 실패</p></div>';
     }
   }
 
-  function generate() {
-    const phone = document.getElementById('input-phone').value.trim();
-    const name  = document.getElementById('input-name').value.trim();
-    let   page  = document.getElementById('input-page').value.trim();
-
-    if (!phone) { alert('안심번호를 입력해주세요.'); return; }
-    if (!page)  { alert('연락 페이지 주소를 입력해주세요.\n예: https://아이디.github.io/car-qr/'); return; }
-    if (!page.endsWith('/')) page += '/';
-
-    const qrUrl = page + '?p=' + encodeURIComponent(phone.replace(/-/g,''))
-                       + (name ? '&n=' + encodeURIComponent(name) : '');
-
-    // QR 생성
-    const box = document.getElementById('qr-box');
+  // QR 팝업
+  window.showQR = (id, url) => {
+    document.getElementById('modal-title').textContent = '코드: ' + id;
+    document.getElementById('modal-desc').textContent = '차량 부착용 QR · 등록 코드: ' + id;
+    const box = document.getElementById('modal-qr-box');
     box.innerHTML = '';
-    new QRCode(box, {
-      text: qrUrl,
-      width: 220, height: 220,
-      colorDark: '#1a1a1a', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
-
-    document.getElementById('qr-url-text').textContent = qrUrl;
-    document.getElementById('setup-card').style.display = 'none';
-    document.getElementById('qr-section').style.display = 'block';
-    window.scrollTo(0, 0);
-  }
-
-  function downloadQR() {
-    const canvas = document.querySelector('#qr-box canvas');
+    new QRCode(box, { text: url, width: 200, height: 200, colorDark: '#1a1a1a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+    document.getElementById('qr-modal').classList.add('open');
+    window._currentModalId = id;
+  };
+  window.closeModal = () => document.getElementById('qr-modal').classList.remove('open');
+  window.printModal = () => {
+    const canvas = document.querySelector('#modal-qr-box canvas');
     if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = 'car-qr.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }
+    const w = window.open('');
+    w.document.write(`<html><body style="text-align:center;padding:2rem"><h2 style="font-family:sans-serif;margin-bottom:0.5rem">코드: ${window._currentModalId}</h2><p style="font-family:sans-serif;font-size:14px;color:#666;margin-bottom:1rem">등록 코드를 보관하세요</p><img src="${canvas.toDataURL()}" style="width:220px"><script>window.onload=()=>{window.print();window.close()}<\/script></body></html>`);
+    w.document.close();
+  };
+  window.downloadModal = () => {
+    const canvas = document.querySelector('#modal-qr-box canvas');
+    if (!canvas) return;
+    const a = document.createElement('a');
+    a.download = 'qr-' + (window._currentModalId||'code') + '.png';
+    a.href = canvas.toDataURL(); a.click();
+  };
 
-  function resetForm() {
-    document.getElementById('setup-card').style.display = 'block';
-    document.getElementById('qr-section').style.display = 'none';
-    window.scrollTo(0, 0);
-  }
+  // 번호 등록
+  window.registerNumber = async () => {
+    const code  = document.getElementById('reg-code').value.trim().toUpperCase();
+    const name  = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    if (!code)  { showToast('❌ 등록 코드를 입력해주세요'); return; }
+    if (!phone) { showToast('❌ 안심번호를 입력해주세요'); return; }
+    const btn = document.querySelector('#tab-register .btn-green');
+    btn.disabled = true; btn.textContent = '등록 중...';
+    try {
+      const ref  = doc(db, 'qrcodes', code);
+      const snap = await getDoc(ref);
+      if (!snap.exists())      { showToast('❌ 유효하지 않은 코드입니다'); btn.disabled=false; btn.textContent='번호 등록하기'; return; }
+      if (snap.data().locked) { showToast('❌ 이미 등록된 코드입니다'); btn.disabled=false; btn.textContent='번호 등록하기'; return; }
+      await setDoc(ref, { phone: phone.replace(/-/g,''), name, locked: true, registeredAt: serverTimestamp() }, { merge: true });
+      showToast('✅ 번호 등록 완료!');
+      document.getElementById('reg-code').value = '';
+      document.getElementById('reg-name').value = '';
+      document.getElementById('reg-phone').value = '';
+      loadList();
+    } catch(e) {
+      showToast('❌ 등록 실패: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = '번호 등록하기';
+  };
+
+  // 전화번호 포맷
+  window.formatPhone = el => {
+    let v = el.value.replace(/\D/g,'');
+    if (v.startsWith('050')) {
+      if (v.length<=4) el.value=v;
+      else if (v.length<=8) el.value=v.slice(0,4)+'-'+v.slice(4);
+      else el.value=v.slice(0,4)+'-'+v.slice(4,8)+'-'+v.slice(8,12);
+    } else {
+      if (v.length<=3) el.value=v;
+      else if (v.length<=7) el.value=v.slice(0,3)+'-'+v.slice(3);
+      else el.value=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+    }
+  };
+
+  // 탭 전환
+  window.switchTab = id => {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const idx = ['tab-generate','tab-list','tab-register'].indexOf(id);
+    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+    if (id === 'tab-list') loadList();
+  };
+
+  // 토스트
+  window.showToast = msg => {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  };
+
+  // 초기 목록 로드
+  loadList();
 </script>
 </body>
 </html>
